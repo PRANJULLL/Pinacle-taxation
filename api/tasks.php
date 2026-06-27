@@ -16,7 +16,7 @@ function generateOrderId() {
 $PLAN_PRICING = [
     'Basic' => 500,
     'Elite' => 1800,
-    'Elite RSU' => 1800,
+    'Elite RSU' => 2000,
     'Premium' => 1300,
     'Assisted Filing - Basic' => 500,
     'Assisted Filing - Premium' => 1300,

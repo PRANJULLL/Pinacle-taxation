@@ -38,7 +38,7 @@ include 'includes/header.php';
                     <option value="Basic">Basic (500)</option>
                     <option value="Premium">Premium (1300)</option>
                     <option value="Elite">Elite (1800)</option>
-                    <option value="Elite RSU">Elite RSU (1800)</option>
+                    <option value="Elite RSU">Elite RSU (2000)</option>
                 </select>
             </div>
             <!-- Filter: Date -->
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formEmail = document.getElementById('formEmail');
     const formEmailContainer = document.getElementById('formEmailContainer');
 
-    const PLAN_PRICING = { Basic: 500, Premium: 1300, Elite: 1800, 'Elite RSU': 1800 };
+    const PLAN_PRICING = { Basic: 500, Premium: 1300, Elite: 1800, 'Elite RSU': 2000 };
 
     function adjustFormFields() {
         const clientVal = formClient.value;

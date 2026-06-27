@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formEmail = document.getElementById('formEmail');
     const formEmailContainer = document.getElementById('formEmailContainer');
 
-    const PLAN_PRICING = { Basic: 500, Premium: 1300, Elite: 1800, 'Elite RSU': 1800 };
+    const PLAN_PRICING = { Basic: 500, Premium: 1300, Elite: 1800, 'Elite RSU': 2000 };
 
     function adjustFormFields() {
         const clientVal = formClient.value;
