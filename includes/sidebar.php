@@ -11,7 +11,7 @@ if ($current_page === '' || $current_page === '/') {
         <img src="assets/logo.png" alt="Logo" class="rounded shadow-sm" style="height: 36px; width: 36px; object-fit: contain;">
         <div>
             <h2 class="h6 fw-bold mb-0 text-foreground">Pinnacle Accounting</h2>
-            <small class="text-muted tracking-wider text-uppercase fw-semibold" style="font-size: 10px;">& Taxation</small>
+            <small class="text-muted tracking-wider text-uppercase fw-bold" style="font-size: 10px;">& Taxation</small>
         </div>
     </div>
 
@@ -46,6 +46,5 @@ if ($current_page === '' || $current_page === '/') {
     <!-- Footer metadata -->
     <div class="p-4 border-top">
         <p class="text-muted mb-0" style="font-size: 11px;">Internal Office Tool</p>
-        <p class="text-muted mb-0" style="font-size: 10px;">v1.0.0 (PHP/Bootstrap)</p>
     </div>
 </aside>
