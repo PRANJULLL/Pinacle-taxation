@@ -27,11 +27,21 @@ include 'includes/header.php';
             <div>
                 <h3 class="h6 fw-bold mb-0 text-foreground" id="expertTasksTitle">All Assigned Tasks</h3>
             </div>
-            <div class="d-flex gap-2 align-items-center" id="expertSubFilterBar">
-                <span class="small text-muted fw-semibold text-uppercase me-1">Filter:</span>
-                <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-sub-filter active" data-subfilter="All">All</button>
-                <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-sub-filter" data-subfilter="Pinnacle_Vishnu">Pinnacle & Vishnu</button>
-                <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-sub-filter" data-subfilter="Clear_Tax">Clear Tax</button>
+            <div class="d-flex flex-wrap gap-3 align-items-center">
+                <!-- Client Filter -->
+                <div class="d-flex gap-2 align-items-center" id="expertSubFilterBar">
+                    <span class="small text-muted fw-semibold text-uppercase me-1">Client:</span>
+                    <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-sub-filter active" data-subfilter="All">All</button>
+                    <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-sub-filter" data-subfilter="Pinnacle_Vishnu">Pinnacle & Vishnu</button>
+                    <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-sub-filter" data-subfilter="Clear_Tax">Clear Tax</button>
+                </div>
+                <!-- Status Filter -->
+                <div class="d-flex gap-2 align-items-center" id="expertStatusFilterBar">
+                    <span class="small text-muted fw-semibold text-uppercase me-1">Status:</span>
+                    <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-status-filter active" data-statusfilter="All">All</button>
+                    <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-status-filter" data-statusfilter="Active">Pending & Stuck</button>
+                    <button class="btn btn-sm rounded-pill px-3 py-1 btn-outline-secondary expert-status-filter" data-statusfilter="Completed">Completed</button>
+                </div>
             </div>
         </div>
 
@@ -241,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // State Variables
     let selectedExpert = '';
     let selectedSubFilter = 'All'; // 'All', 'Pinnacle_Vishnu', 'Clear_Tax'
+    let selectedStatusFilter = 'All'; // 'All', 'Active', 'Completed'
     let tasksCache = [];
     let activeViewedTask = null;
 
@@ -372,6 +383,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Status-Filter Tabs Click handler
+    const statusFilterButtons = document.querySelectorAll('.expert-status-filter');
+    statusFilterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            statusFilterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedStatusFilter = btn.getAttribute('data-statusfilter');
+            
+            if (selectedExpert) {
+                renderTasksTable();
+            }
+        });
+    });
+
     // 1. Fetch Experts Workload Metrics
     async function fetchExpertsMetrics() {
         const loader = document.getElementById('expertsLoader');
@@ -486,12 +511,19 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyState.classList.add('d-none');
         table.classList.remove('d-none');
 
-        // Apply Sub-Filter
+        // Apply Sub-Filter (Client)
         let filteredTasks = tasksCache;
         if (selectedSubFilter === 'Pinnacle_Vishnu') {
             filteredTasks = tasksCache.filter(t => t.client === 'Pinnacle' || t.client === 'Vishnu');
         } else if (selectedSubFilter === 'Clear_Tax') {
             filteredTasks = tasksCache.filter(t => t.client === 'Clear Tax');
+        }
+
+        // Apply Status Filter
+        if (selectedStatusFilter === 'Active') {
+            filteredTasks = filteredTasks.filter(t => t.status === 'Pending' || t.status === 'Stuck');
+        } else if (selectedStatusFilter === 'Completed') {
+            filteredTasks = filteredTasks.filter(t => t.status === 'Completed');
         }
 
         if (filteredTasks.length === 0) {
