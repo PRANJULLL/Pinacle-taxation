@@ -1,0 +1,8 @@
+My project is https://github.com/PRANJULLL/Pinnacle-Vishnu-and-Taxation.git
+But now i have to make this same project using different techStacks
+Frontend = BootStrap , CSS
+backend = PHP
+Database = MYSQL
+ i will be using shared hosting
+
+ Make this same project as i have made earlier with nextjs and nodejs

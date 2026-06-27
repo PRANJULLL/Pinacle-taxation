@@ -1,0 +1,188 @@
+/* assets/css/style.css */
+
+/* Custom fonts */
+body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.95rem;
+    overflow-x: hidden;
+}
+
+/* Sidebar Layout & Styling */
+.sidebar-container {
+    height: 100vh;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+}
+
+.nav-link-item {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+    margin-bottom: 0.25rem;
+}
+
+.nav-link-item:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+.nav-link-item.active {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+[data-bs-theme="dark"] .nav-link-item.active {
+    background-color: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+}
+
+/* Backdrop blur header helper */
+.backdrop-blur {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Custom visual cards styles */
+.card {
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-bs-theme="dark"] .card {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Badge status stylings */
+.badge-status {
+    padding: 0.35em 0.8em;
+    font-weight: 600;
+    border-radius: 50rem;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.badge-status-pending {
+    background-color: rgba(202, 138, 4, 0.12);
+    color: #a16207;
+}
+[data-bs-theme="dark"] .badge-status-pending {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #fef08a;
+}
+
+.badge-status-completed {
+    background-color: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+[data-bs-theme="dark"] .badge-status-completed {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #bbf7d0;
+}
+
+.badge-status-stuck {
+    background-color: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+}
+[data-bs-theme="dark"] .badge-status-stuck {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+}
+
+/* Table Task Status Custom Row Colors */
+tr.task-row-Completed td {
+    background-color: rgba(22, 163, 74, 0.08) !important;
+}
+tr.task-row-Completed:hover td {
+    background-color: rgba(22, 163, 74, 0.14) !important;
+}
+tr.task-row-Pending td {
+    background-color: rgba(202, 138, 4, 0.08) !important;
+}
+tr.task-row-Pending:hover td {
+    background-color: rgba(202, 138, 4, 0.14) !important;
+}
+tr.task-row-Stuck td {
+    background-color: rgba(220, 38, 38, 0.08) !important;
+}
+tr.task-row-Stuck:hover td {
+    background-color: rgba(220, 38, 38, 0.14) !important;
+}
+
+[data-bs-theme="dark"] tr.task-row-Completed td {
+    background-color: rgba(34, 197, 94, 0.12) !important;
+}
+[data-bs-theme="dark"] tr.task-row-Completed:hover td {
+    background-color: rgba(34, 197, 94, 0.18) !important;
+}
+[data-bs-theme="dark"] tr.task-row-Pending td {
+    background-color: rgba(234, 179, 8, 0.12) !important;
+}
+[data-bs-theme="dark"] tr.task-row-Pending:hover td {
+    background-color: rgba(234, 179, 8, 0.18) !important;
+}
+[data-bs-theme="dark"] tr.task-row-Stuck td {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+}
+[data-bs-theme="dark"] tr.task-row-Stuck:hover td {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+}
+
+/* Micro-animations and hover effects */
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.client-filter-btn {
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+}
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Mobile responsive menu & layout fix */
+.content-wrapper {
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+    
+    .sidebar-container {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar-container.show {
+        transform: translateX(0);
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
+    }
+}
