@@ -7,6 +7,9 @@ if (session_status() === PHP_SESSION_NONE) {
 // Get theme from cookie or default to light
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 
+// Get sidebar collapsed state from cookie
+$sidebar_collapsed = isset($_COOKIE['sidebar_collapsed']) && $_COOKIE['sidebar_collapsed'] === '1';
+
 // Get current filename to highlight active sidebar item and apply custom page filters
 $current_page = basename($_SERVER['PHP_SELF']);
 $is_tasks_page = ($current_page === 'tasks.php');
@@ -43,14 +46,14 @@ if ($is_tasks_page && $selected_client === 'All') {
     <!-- SweetAlert2 for Toast and Confirm notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="h-full bg-light-subtle text-body">
+<body class="h-full bg-light-subtle text-body <?php echo $sidebar_collapsed ? 'sidebar-collapsed' : ''; ?>">
 
 <div class="d-flex h-full min-h-screen">
     <!-- Sidebar Include -->
     <?php include 'sidebar.php'; ?>
 
     <!-- Main Workspace Container -->
-    <div class="flex-grow-1 d-flex flex-column min-h-screen content-wrapper" style="margin-left: 240px; transition: margin-left 0.3s ease;">
+    <div class="flex-grow-1 d-flex flex-column min-h-screen content-wrapper">
         <!-- Top Sticky Header -->
         <header class="sticky-top border-b border-light bg-body bg-opacity-75 backdrop-blur py-3 px-4 shadow-sm z-3">
             <div class="d-flex flex-column gap-3">
@@ -66,9 +69,14 @@ if ($is_tasks_page && $selected_client === 'All') {
                         </div>
                     </div>
                     
-                    <div class="d-none d-md-block">
-                        <h1 class="h5 fw-bold mb-0 text-foreground" id="headerTitle">Dashboard</h1>
-                        <p class="text-muted small mb-0" id="headerSubtitle">Overview of office task management</p>
+                    <div class="d-none d-md-flex align-items-center gap-3">
+                        <button class="btn btn-outline-secondary btn-sm" id="sidebarToggleDesktop" aria-label="Toggle Sidebar" title="Collapse/Expand Sidebar">
+                            <i class="bi bi-list fs-5"></i>
+                        </button>
+                        <div>
+                            <h1 class="h5 fw-bold mb-0 text-foreground" id="headerTitle">Dashboard</h1>
+                            <p class="text-muted small mb-0" id="headerSubtitle">Overview of office task management</p>
+                        </div>
                     </div>
 
                     <div class="d-flex align-items-center gap-2 ms-auto">

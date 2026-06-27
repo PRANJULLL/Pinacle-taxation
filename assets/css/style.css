@@ -9,7 +9,14 @@ body {
 
 /* Sidebar Layout & Styling */
 .sidebar-container {
+    width: 240px;
     height: 100vh;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 4;
+    transition: transform 0.3s ease;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
 }
 
@@ -170,6 +177,18 @@ tr.task-row-Stuck:hover td {
 /* Mobile responsive menu & layout fix */
 .content-wrapper {
     min-width: 0;
+    margin-left: 240px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Desktop Sidebar collapsing */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-container {
+        transform: translateX(-240px);
+    }
+    body.sidebar-collapsed .content-wrapper {
+        margin-left: 0 !important;
+    }
 }
 
 @media (max-width: 768px) {

@@ -5,7 +5,7 @@ if ($current_page === '' || $current_page === '/') {
     $current_page = 'index.php';
 }
 ?>
-<aside class="sidebar-container bg-body border-end h-full d-flex flex-column" style="width: 240px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 4; transition: transform 0.3s ease;">
+<aside class="sidebar-container bg-body border-end h-full d-flex flex-column">
     <!-- Logo & Brand Header -->
     <div class="d-flex align-items-center gap-3 py-3 px-4 border-b border-light" style="height: 64px;">
         <img src="assets/logo.png" alt="Logo" class="rounded shadow-sm" style="height: 36px; width: 36px; object-fit: contain;">

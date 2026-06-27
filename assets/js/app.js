@@ -19,6 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Sidebar Toggler for Desktop
+    const sidebarToggleDesktop = document.getElementById('sidebarToggleDesktop');
+    if (sidebarToggleDesktop) {
+        sidebarToggleDesktop.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+            setCookie('sidebar_collapsed', isCollapsed ? '1' : '0', 30);
+        });
+    }
+
     // 2. Theme Toggle Controller
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     if (themeToggleBtn) {
