@@ -11,7 +11,7 @@ if ($current_page === '' || $current_page === '/') {
         <img src="assets/logo.png" alt="Logo" class="rounded shadow-sm" style="height: 36px; width: 36px; object-fit: contain;">
         <div>
             <h2 class="h6 fw-bold mb-0 text-foreground">Pinnacle Accounting</h2>
-            <small class="text-muted tracking-wider text-uppercase fw-bold" style="font-size: 10px;">& Taxation</small>
+            <small class="text-foreground tracking-wider text-uppercase fw-bold" style="font-size: 10px;">& Taxation</small>
         </div>
     </div>
 
@@ -40,6 +40,10 @@ if ($current_page === '' || $current_page === '/') {
         <a href="settings.php" class="nav-link-item <?php echo ($current_page === 'settings.php') ? 'active' : ''; ?>">
             <i class="bi bi-gear me-2 fs-5"></i>
             Settings
+        </a>
+        <a href="logout.php" class="nav-link-item text-danger mt-auto">
+            <i class="bi bi-box-arrow-right me-2 fs-5"></i>
+            Logout
         </a>
     </nav>
 

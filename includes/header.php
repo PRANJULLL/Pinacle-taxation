@@ -65,7 +65,7 @@ if ($is_tasks_page && $selected_client === 'All') {
                         <img src="assets/logo.png" alt="Logo" class="rounded" style="height: 32px; width: 32px; object-fit: contain;">
                         <div>
                             <p class="mb-0 fw-bold fs-6 lh-1">Pinnacle Accounting</p>
-                            <small class="text-muted text-uppercase fw-bold" style="font-size: 9px;">& Taxation</small>
+                            <small class="text-foreground text-uppercase fw-bold" style="font-size: 9px;">& Taxation</small>
                         </div>
                     </div>
                     

@@ -8,6 +8,25 @@ ini_set('display_errors', 0); // Hide errors from end-users, log them instead
 // Set default timezone to local system timezone (IST) to sync with local database time
 date_default_timezone_set('Asia/Kolkata');
 
+if (php_sapi_name() !== 'cli') {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    $current_page = basename($_SERVER['PHP_SELF']);
+    if ($current_page !== 'login.php' && !isset($_SESSION['user_id'])) {
+        if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+            header('Content-Type: application/json');
+            http_response_code(401);
+            echo json_encode(['message' => 'Unauthorized']);
+            exit;
+        } else {
+            header('Location: login.php');
+            exit;
+        }
+    }
+}
+
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
@@ -61,6 +80,23 @@ try {
  * Seed database with default clients and employees if they don't exist
  */
 function seedDatabaseIfNeeded($pdo) {
+    // Create users table if not exists
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `username` VARCHAR(50) NOT NULL UNIQUE,
+        `password` VARCHAR(255) NOT NULL,
+        `name` VARCHAR(100) NOT NULL,
+        `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+    // Check if users are empty
+    $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+    if ($stmt->fetchColumn() == 0) {
+        $insert = $pdo->prepare("INSERT INTO users (username, password, name) VALUES (?, ?, ?)");
+        $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
+        $insert->execute(['admin', $hashedPassword, 'Administrator']);
+    }
+
     // Check if clients are empty
     $stmt = $pdo->query("SELECT COUNT(*) FROM clients");
     if ($stmt->fetchColumn() == 0) {
