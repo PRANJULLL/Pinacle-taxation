@@ -1,9 +1,12 @@
 <?php
 // includes/db.php
+ob_start();
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 0); // Hide errors from end-users, log them instead
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../php_errors.log');
 
 // Set default timezone to local system timezone (IST) to sync with local database time
 date_default_timezone_set('Asia/Kolkata');
@@ -43,7 +46,7 @@ try {
     seedDatabaseIfNeeded($pdo);
     applyStuckLogic($pdo);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     // Return a JSON error if it's an API request, or display a styled message
     if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
         header('Content-Type: application/json');

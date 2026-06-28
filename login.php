@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error = 'Invalid username or password.';
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $error = 'An error occurred during authentication: ' . $e->getMessage();
         }
     }
