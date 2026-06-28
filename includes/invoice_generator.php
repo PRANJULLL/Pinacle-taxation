@@ -87,29 +87,20 @@ function generateInvoicePDF($data) {
         $pdf->SetDrawColor($borderGrey[0], $borderGrey[1], $borderGrey[2]);
     }
 
-    // Brand Name and Subtitle
-    $pdf->SetXY(41, 16);
-    $pdf->SetFont('Arial', 'B', 20);
+    // Brand Name and Subtitle (Single Line)
+    $pdf->SetXY(41, 17);
+    $pdf->SetFont('Arial', 'B', 16);
     $pdf->SetTextColor($primaryNavy[0], $primaryNavy[1], $primaryNavy[2]);
-    $pdf->Cell(80, 7, 'Pinnacle', 0, 1, 'L');
+    $pdf->Cell(120, 7, 'Pinnacle Accounting & Taxation', 0, 1, 'L');
     $pdf->SetX(41);
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->SetTextColor($secondarySteel[0], $secondarySteel[1], $secondarySteel[2]);
-    $pdf->Cell(80, 5, 'Accounting & Taxation', 0, 1, 'L');
-    $pdf->SetX(41);
-    $pdf->SetFont('Arial', 'I', 8);
+    $pdf->SetFont('Arial', 'I', 8.5);
     $pdf->SetTextColor($mutedSlate[0], $mutedSlate[1], $mutedSlate[2]);
-    $pdf->Cell(80, 4, 'Your trusted taxation partner', 0, 0, 'L');
+    $pdf->Cell(120, 4.5, 'Your trust our slogan', 0, 0, 'L');
 
     // Right-Aligned Company Address/Contact Info
-    $pdf->SetXY(110, 16);
-    $pdf->SetFont('Arial', 'B', 9);
-    $pdf->SetTextColor($darkCharcoal[0], $darkCharcoal[1], $darkCharcoal[2]);
-    $pdf->Cell(85, 4.5, 'PINNACLE ACCOUNTING SERVICES', 0, 1, 'R');
-    
+    $pdf->SetXY(110, 18);
     $pdf->SetFont('Arial', '', 8);
     $pdf->SetTextColor($mutedSlate[0], $mutedSlate[1], $mutedSlate[2]);
-    $pdf->SetX(110);
     $pdf->Cell(85, 4, 'Email: FileYourITR007@gmail.com', 0, 1, 'R');
     $pdf->SetX(110);
     $pdf->Cell(85, 4, 'Phone: +91 94673-62705', 0, 1, 'R');

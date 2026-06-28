@@ -146,8 +146,7 @@ $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
     <!-- Brand Header -->
     <div class="text-center mb-4">
         <img src="assets/logo.png" alt="Logo" class="brand-logo mb-3 rounded shadow-sm">
-        <h1 class="h4 fw-bold mb-1 text-foreground">Pinnacle Accounting</h1>
-        <p class="text-muted small text-uppercase fw-bold tracking-wider mb-0" style="font-size: 11px;">& Taxation</p>
+        <h1 class="h4 fw-bold mb-1 text-foreground">Pinnacle Accounting<br>& Taxation</h1>
     </div>
 
     <!-- Error Alert -->

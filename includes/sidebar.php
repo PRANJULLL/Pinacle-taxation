@@ -10,8 +10,7 @@ if ($current_page === '' || $current_page === '/') {
     <div class="d-flex align-items-center gap-3 py-3 px-4 border-b border-light" style="height: 64px;">
         <img src="assets/logo.png" alt="Logo" class="rounded shadow-sm" style="height: 36px; width: 36px; object-fit: contain;">
         <div>
-            <h2 class="h6 fw-bold mb-0 text-foreground">Pinnacle Accounting</h2>
-            <small class="text-foreground tracking-wider text-uppercase fw-bold" style="font-size: 10px;">& Taxation</small>
+            <h2 class="h6 fw-bold mb-0 text-foreground">Pinnacle Accounting<br>& Taxation</h2>
         </div>
     </div>
 
