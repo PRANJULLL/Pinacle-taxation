@@ -1,6 +1,20 @@
 <?php
 // logout.php
 if (session_status() === PHP_SESSION_NONE) {
+    // Must match the session save path / cookie params set in includes/db.php,
+    // otherwise this finds/destroys the wrong (empty) session on shared hosting.
+    $sessionPath = __DIR__ . '/.sessions';
+    if (is_dir($sessionPath) && is_writable($sessionPath)) {
+        session_save_path($sessionPath);
+    }
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     session_start();
 }
 

@@ -26,20 +26,64 @@ try {
         $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status = 'Stuck'");
         $stuckTasks = (int)$stmt->fetchColumn();
 
-        // Employee Performance statistics
+        // Employee Performance statistics (now includes pending/stuck breakdown too)
         $sql = "SELECT 
                     taxExpert as name, 
                     COUNT(*) as total,
                     SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
                     SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
                 FROM tasks 
-                GROUP BY taxExpert";
+                GROUP BY taxExpert
+                ORDER BY revenue DESC";
         $stmt = $pdo->query($sql);
         $employeePerformance = $stmt->fetchAll();
         foreach ($employeePerformance as &$emp) {
             $emp['total'] = (int)$emp['total'];
             $emp['completed'] = (int)$emp['completed'];
+            $emp['pending'] = (int)$emp['pending'];
+            $emp['stuck'] = (int)$emp['stuck'];
             $emp['revenue'] = (float)$emp['revenue'];
+        }
+
+        // Revenue & task breakdown by Source / Client (Pinnacle, Vishnu, Clear Tax)
+        $sql = "SELECT 
+                    client,
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
+                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                FROM tasks
+                GROUP BY client
+                ORDER BY revenue DESC";
+        $stmt = $pdo->query($sql);
+        $revenueByClient = $stmt->fetchAll();
+        foreach ($revenueByClient as &$src) {
+            $src['total'] = (int)$src['total'];
+            $src['completed'] = (int)$src['completed'];
+            $src['pending'] = (int)$src['pending'];
+            $src['stuck'] = (int)$src['stuck'];
+            $src['revenue'] = (float)$src['revenue'];
+        }
+
+        // Revenue breakdown by Filing Plan (Basic/Premium/Elite/Elite RSU)
+        $sql = "SELECT 
+                    plan,
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                FROM tasks
+                WHERE plan IS NOT NULL AND plan != ''
+                GROUP BY plan
+                ORDER BY revenue DESC";
+        $stmt = $pdo->query($sql);
+        $revenueByPlan = $stmt->fetchAll();
+        foreach ($revenueByPlan as &$pl) {
+            $pl['total'] = (int)$pl['total'];
+            $pl['completed'] = (int)$pl['completed'];
+            $pl['revenue'] = (float)$pl['revenue'];
         }
 
         echo json_encode([
@@ -47,7 +91,9 @@ try {
             'completedTasks' => $completedTasks,
             'pendingTasks' => $pendingTasks,
             'stuckTasks' => $stuckTasks,
-            'employeePerformance' => $employeePerformance
+            'employeePerformance' => $employeePerformance,
+            'revenueByClient' => $revenueByClient,
+            'revenueByPlan' => $revenueByPlan
         ]);
         exit;
     } 
@@ -111,13 +157,19 @@ try {
         }
 
         if ($search !== '') {
-            $whereClauses[] = "(customerName LIKE :search 
-                               OR pan LIKE :search 
-                               OR phone LIKE :search 
-                               OR email LIKE :search 
-                               OR orderId LIKE :search 
-                               OR taxExpert LIKE :search)";
-            $sqlParams['search'] = "%" . $search . "%";
+            $whereClauses[] = "(customerName LIKE :search1 
+                               OR pan LIKE :search2 
+                               OR phone LIKE :search3 
+                               OR email LIKE :search4 
+                               OR orderId LIKE :search5 
+                               OR taxExpert LIKE :search6)";
+            $searchTerm = "%" . $search . "%";
+            $sqlParams['search1'] = $searchTerm;
+            $sqlParams['search2'] = $searchTerm;
+            $sqlParams['search3'] = $searchTerm;
+            $sqlParams['search4'] = $searchTerm;
+            $sqlParams['search5'] = $searchTerm;
+            $sqlParams['search6'] = $searchTerm;
         }
 
         if ($dateFilter !== 'All') {
@@ -162,7 +214,7 @@ try {
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
         // Add headers
-        fputcsv($output, ['Order ID', 'Client', 'Customer Name', 'PAN', 'Phone', 'Email', 'Plan', 'Amount', 'Task Expert', 'Status', 'Created At']);
+        fputcsv($output, ['Order ID', 'Client', 'Customer Name', 'PAN', 'Phone', 'Email', 'Plan', 'Amount', 'Tax Expert', 'Status', 'Created At']);
 
         // Add task rows
         foreach ($tasks as $task) {
@@ -206,11 +258,27 @@ try {
                     taxExpert as name, 
                     COUNT(*) as total,
                     SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
                     SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
                 FROM tasks 
-                GROUP BY taxExpert";
+                GROUP BY taxExpert
+                ORDER BY revenue DESC";
         $stmt = $pdo->query($sql);
         $employeePerformance = $stmt->fetchAll();
+
+        $sql = "SELECT 
+                    client,
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
+                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                FROM tasks
+                GROUP BY client
+                ORDER BY revenue DESC";
+        $stmt = $pdo->query($sql);
+        $revenueByClient = $stmt->fetchAll();
 
         // Clear output buffer
         if (ob_get_level()) {
@@ -266,24 +334,53 @@ try {
 
         // Employee performance header
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(0, 8, 'Employee Performance', 0, 1, 'L');
+        $pdf->Cell(0, 8, 'Tax Expert Detailed Performance', 0, 1, 'L');
         $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
         $pdf->Ln(4);
 
         // Performance Table Headers
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(50, 8, 'Expert Name', 1, 0, 'L');
-        $pdf->Cell(40, 8, 'Assigned Tasks', 1, 0, 'C');
-        $pdf->Cell(40, 8, 'Completed Tasks', 1, 0, 'C');
-        $pdf->Cell(50, 8, 'Revenue Generated', 1, 1, 'R');
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(40, 8, 'Expert Name', 1, 0, 'L');
+        $pdf->Cell(28, 8, 'Assigned', 1, 0, 'C');
+        $pdf->Cell(28, 8, 'Completed', 1, 0, 'C');
+        $pdf->Cell(28, 8, 'Pending', 1, 0, 'C');
+        $pdf->Cell(26, 8, 'Stuck', 1, 0, 'C');
+        $pdf->Cell(30, 8, 'Revenue', 1, 1, 'R');
 
         // Populate Table Rows
-        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetFont('Arial', '', 9);
         foreach ($employeePerformance as $emp) {
-            $pdf->Cell(50, 8, $emp['name'], 1, 0, 'L');
-            $pdf->Cell(40, 8, $emp['total'], 1, 0, 'C');
-            $pdf->Cell(40, 8, $emp['completed'], 1, 0, 'C');
-            $pdf->Cell(50, 8, 'Rs ' . number_format($emp['revenue'], 2), 1, 1, 'R');
+            $pdf->Cell(40, 8, $emp['name'], 1, 0, 'L');
+            $pdf->Cell(28, 8, $emp['total'], 1, 0, 'C');
+            $pdf->Cell(28, 8, $emp['completed'], 1, 0, 'C');
+            $pdf->Cell(28, 8, $emp['pending'], 1, 0, 'C');
+            $pdf->Cell(26, 8, $emp['stuck'], 1, 0, 'C');
+            $pdf->Cell(30, 8, 'Rs ' . number_format($emp['revenue'], 2), 1, 1, 'R');
+        }
+        $pdf->Ln(10);
+
+        // Revenue by Source / Client header
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->Cell(0, 8, 'Revenue by Source (Client)', 0, 1, 'L');
+        $pdf->Line(15, $pdf->GetY(), 195, $pdf->GetY());
+        $pdf->Ln(4);
+
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(40, 8, 'Source / Client', 1, 0, 'L');
+        $pdf->Cell(28, 8, 'Total Tasks', 1, 0, 'C');
+        $pdf->Cell(28, 8, 'Completed', 1, 0, 'C');
+        $pdf->Cell(28, 8, 'Pending', 1, 0, 'C');
+        $pdf->Cell(26, 8, 'Stuck', 1, 0, 'C');
+        $pdf->Cell(30, 8, 'Revenue', 1, 1, 'R');
+
+        $pdf->SetFont('Arial', '', 9);
+        foreach ($revenueByClient as $src) {
+            $pdf->Cell(40, 8, $src['client'], 1, 0, 'L');
+            $pdf->Cell(28, 8, $src['total'], 1, 0, 'C');
+            $pdf->Cell(28, 8, $src['completed'], 1, 0, 'C');
+            $pdf->Cell(28, 8, $src['pending'], 1, 0, 'C');
+            $pdf->Cell(26, 8, $src['stuck'], 1, 0, 'C');
+            $pdf->Cell(30, 8, 'Rs ' . number_format($src['revenue'], 2), 1, 1, 'R');
         }
 
         // Serve PDF to browser

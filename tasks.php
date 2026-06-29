@@ -21,7 +21,7 @@ include 'includes/header.php';
             </div>
             <!-- Filter: Employee -->
             <div class="col-12 col-sm-6 col-md-3 col-lg-2">
-                <label class="form-label small text-muted mb-1">Task Expert</label>
+                <label class="form-label small text-muted mb-1">Tax Expert</label>
                 <select class="form-select form-select-sm" id="filterEmployee">
                     <option value="All">All Experts</option>
                     <option value="Jay">Jay</option>
@@ -93,10 +93,17 @@ include 'includes/header.php';
             </div>
 
             <!-- Table Pagination Footer -->
-            <div class="card-footer bg-transparent border-top d-flex align-items-center justify-content-between py-3 px-4">
+            <div class="card-footer bg-transparent border-top d-flex align-items-center justify-content-between py-3 px-4 flex-wrap gap-2">
                 <span class="small text-muted" id="paginationStats">Showing 0 of 0 tasks</span>
                 <nav aria-label="Page navigation">
                     <div class="d-flex align-items-center gap-2">
+                        <label class="small text-muted mb-0 me-1" for="filterPageSize">Rows per page</label>
+                        <select class="form-select form-select-sm" id="filterPageSize" style="width: auto;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
                         <button class="btn btn-sm btn-outline-secondary px-3" id="btnPagePrev" disabled>Previous</button>
                         <span class="small mx-2" id="paginationPageNum">Page 1 of 1</span>
                         <button class="btn btn-sm btn-outline-secondary px-3" id="btnPageNext" disabled>Next</button>
@@ -240,6 +247,7 @@ include 'includes/header.php';
                 </div>
                 <div>
                     <button type="button" class="btn btn-success btn-sm px-3 d-none" id="btnViewComplete">Mark Completed</button>
+                    <button type="button" class="btn btn-warning btn-sm px-3 d-none" id="btnViewRevert">Revert to Pending</button>
                     <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -287,10 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeClient = getCookie('selected_client') || 'Pinnacle';
     let currentPage = 1;
     let totalPages = 1;
+    let pageSize = parseInt(getCookie('tasks_page_size')) || 10;
     let sortBy = 'createdAt';
     let sortOrder = 'desc';
     let tasksCache = [];
     let activeViewedTask = null;
+
+    document.getElementById('filterPageSize').value = String(pageSize);
 
     // Load initial tasks
     fetchTasks();
@@ -318,6 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPage = 1;
             fetchTasks();
         }, 300);
+    });
+
+    // Event listener: Rows-per-page selector
+    document.getElementById('filterPageSize').addEventListener('change', (e) => {
+        pageSize = parseInt(e.target.value) || 10;
+        setCookie('tasks_page_size', pageSize, 365);
+        currentPage = 1;
+        fetchTasks();
     });
 
     // Reset Filters
@@ -503,6 +522,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.getElementById('btnViewRevert').addEventListener('click', () => {
+        if (activeViewedTask) {
+            taskViewModal.hide();
+            setTimeout(() => {
+                revertTask(activeViewedTask);
+            }, 300);
+        }
+    });
+
     // -------------------------------------------------------------
     // Core API Requests
     // -------------------------------------------------------------
@@ -523,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dateFilter: document.getElementById('filterDate').value,
             search: searchInput.value,
             page: currentPage,
-            limit: 10,
+            limit: pageSize,
             sortBy: sortBy,
             sortOrder: sortOrder
         });
@@ -600,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 7. Amount & Expert & Status & Created At
         html += `<th class="text-nowrap" style="cursor: pointer;" onclick="window.setSort('amount')">Amount ${sortIcon('amount')}</th>`;
-        html += `<th class="text-nowrap" style="cursor: pointer;" onclick="window.setSort('taxExpert')">Task Expert ${sortIcon('taxExpert')}</th>`;
+        html += `<th class="text-nowrap" style="cursor: pointer;" onclick="window.setSort('taxExpert')">Tax Expert ${sortIcon('taxExpert')}</th>`;
         html += `<th class="text-nowrap" style="cursor: pointer;" onclick="window.setSort('status')">Status ${sortIcon('status')}</th>`;
         html += `<th class="text-nowrap">Remarks</th>`;
         html += `<th class="text-nowrap text-end" style="width: 120px;">Actions</th>`;
@@ -633,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 1. Sr No or Order ID
             if (activeClient === 'Pinnacle' || activeClient === 'Vishnu') {
-                const srNo = (currentPage - 1) * 10 + index + 1;
+                const srNo = (currentPage - 1) * pageSize + index + 1;
                 html += `<td class="fw-bold">${srNo}</td>`;
             } else {
                 html += `<td class="text-nowrap font-monospace text-muted small">${task.orderId}</td>`;
@@ -675,7 +703,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="btn btn-outline-success btn-xs py-1 px-2 border-0" onclick="window.completeTaskById(${task.id})" title="Complete Task">
                             <i class="bi bi-check-circle-fill"></i>
                         </button>
-                    ` : ''}
+                    ` : `
+                        <button class="btn btn-outline-warning btn-xs py-1 px-2 border-0" onclick="window.revertTaskById(${task.id})" title="Revert to Pending">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    `}
                     <div class="dropdown">
                         <button class="btn btn-light btn-xs py-1 px-2 border-0" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
                             <i class="bi bi-three-dots-vertical"></i>
@@ -684,7 +716,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.viewTaskById(${task.id})"><i class="bi bi-eye me-2 text-primary"></i> View Details</a></li>
                             ${task.status !== 'Completed' ? `
                                 <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.completeTaskById(${task.id})"><i class="bi bi-check2-circle me-2 text-success"></i> Complete Task</a></li>
-                            ` : ''}
+                            ` : `
+                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.revertTaskById(${task.id})"><i class="bi bi-arrow-counterclockwise me-2 text-warning"></i> Revert to Pending</a></li>
+                            `}
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.editTaskById(${task.id})"><i class="bi bi-pencil me-2 text-warning"></i> Edit Details</a></li>
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.generateInvoice(${task.id})"><i class="bi bi-file-earmark-pdf me-2 text-info"></i> Generate Invoice</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -763,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="col-12 col-md-6"><small class="text-muted d-block">Email Address</small><strong class="fs-6">${task.email}</strong></div>
             ${task.client === 'Clear Tax' ? `<div class="col-12 col-md-6"><small class="text-muted d-block">Filing Plan</small><strong class="fs-6">${task.plan}</strong></div>` : ''}
             <div class="col-12 col-md-6"><small class="text-muted d-block">Amount Charged</small><strong class="fs-6">${formatCurrency(task.amount)}</strong></div>
-            <div class="col-12 col-md-6"><small class="text-muted d-block">Task Expert Assigned</small><span class="badge bg-secondary-subtle text-secondary fs-7 mt-1">${task.taxExpert}</span></div>
+            <div class="col-12 col-md-6"><small class="text-muted d-block">Tax Expert Assigned</small><span class="badge bg-secondary-subtle text-secondary fs-7 mt-1">${task.taxExpert}</span></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Current Status</small><span class="badge-status badge-status-${task.status.toLowerCase()} mt-1">${task.status}</span></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Assigned Date</small><strong class="fs-7 text-muted">${formatDate(task.createdAt)}</strong></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Completed Date</small><strong class="fs-7 text-muted">${formatDate(task.completedAt)}</strong></div>
@@ -781,12 +815,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         content.innerHTML = html;
 
-        // Toggle Complete Button inside View Dialog
+        // Toggle Complete / Revert buttons inside View Dialog
         const compBtn = document.getElementById('btnViewComplete');
+        const revertBtn = document.getElementById('btnViewRevert');
         if (task.status !== 'Completed') {
             compBtn.classList.remove('d-none');
+            revertBtn.classList.add('d-none');
         } else {
             compBtn.classList.add('d-none');
+            revertBtn.classList.remove('d-none');
         }
 
         taskViewModal.show();
@@ -804,6 +841,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.completeTaskById = (id) => {
         const task = tasksCache.find(t => t.id == id);
         if (task) completeTask(task);
+    };
+
+    window.revertTaskById = (id) => {
+        const task = tasksCache.find(t => t.id == id);
+        if (task) revertTask(task);
     };
 
     // Invoice Generation Action
@@ -883,6 +925,47 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const err = await res.json();
                 throw new Error(err.message || 'Failed to update task status');
+            }
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    }
+
+    // Revert a Completed task back to Pending
+    async function revertTask(task) {
+        const result = await Swal.fire({
+            title: 'Revert to Pending?',
+            text: 'This task will move back to Pending status and its completion date will be cleared.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Revert Task',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const res = await fetch(`api/tasks.php?id=${task.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'Pending' })
+            });
+
+            if (res.ok) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Task reverted to Pending',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                fetchTasks();
+            } else {
+                const err = await res.json();
+                throw new Error(err.message || 'Failed to revert task status');
             }
         } catch (err) {
             Swal.fire('Error', err.message, 'error');

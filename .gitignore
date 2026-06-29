@@ -1,1 +1,6 @@
 original_project
+
+# PHP session files (created automatically, must stay writable on the server)
+.sessions/*
+!.sessions/.htaccess
+!.sessions/index.php

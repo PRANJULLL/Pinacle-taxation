@@ -1,0 +1,3 @@
+# Deny all direct web access to session files
+Require all denied
+Deny from all

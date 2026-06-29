@@ -104,13 +104,19 @@ try {
         }
 
         if ($search !== '') {
-            $whereClauses[] = "(customerName LIKE :search 
-                               OR pan LIKE :search 
-                               OR phone LIKE :search 
-                               OR email LIKE :search 
-                               OR orderId LIKE :search 
-                               OR taxExpert LIKE :search)";
-            $sqlParams['search'] = "%" . $search . "%";
+            $whereClauses[] = "(customerName LIKE :search1 
+                               OR pan LIKE :search2 
+                               OR phone LIKE :search3 
+                               OR email LIKE :search4 
+                               OR orderId LIKE :search5 
+                               OR taxExpert LIKE :search6)";
+            $searchTerm = "%" . $search . "%";
+            $sqlParams['search1'] = $searchTerm;
+            $sqlParams['search2'] = $searchTerm;
+            $sqlParams['search3'] = $searchTerm;
+            $sqlParams['search4'] = $searchTerm;
+            $sqlParams['search5'] = $searchTerm;
+            $sqlParams['search6'] = $searchTerm;
         }
 
         if ($dateFilter !== 'All') {

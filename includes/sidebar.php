@@ -26,7 +26,7 @@ if ($current_page === '' || $current_page === '/') {
         </a>
         <a href="employees.php" class="nav-link-item <?php echo ($current_page === 'employees.php') ? 'active' : ''; ?>">
             <i class="bi bi-people me-2 fs-5"></i>
-            Task Experts
+            Tax Experts
         </a>
         <a href="invoices.php" class="nav-link-item <?php echo ($current_page === 'invoices.php') ? 'active' : ''; ?>">
             <i class="bi bi-file-earmark-text me-2 fs-5"></i>

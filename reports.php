@@ -62,9 +62,83 @@ include 'includes/header.php';
         </div>
 
         <!-- Performance Chart Row -->
-        <div class="card border-0 shadow-sm p-4">
-            <h3 class="h6 fw-bold mb-3 border-bottom pb-2">Employee Work Performance</h3>
+        <div class="card border-0 shadow-sm p-4 mb-4">
+            <h3 class="h6 fw-bold mb-3 border-bottom pb-2">Tax Expert Work Performance</h3>
             <div id="chart-performance" style="min-height: 320px;"></div>
+        </div>
+
+        <!-- Detailed Breakdown Row -->
+        <div class="row g-4">
+            <!-- Revenue by Source / Client -->
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h3 class="h6 fw-bold mb-3 border-bottom pb-2">Revenue by Source (Client)</h3>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Source</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Completed</th>
+                                    <th class="text-center">Pending</th>
+                                    <th class="text-center">Stuck</th>
+                                    <th class="text-end">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-by-source-body">
+                                <tr><td colspan="6" class="text-center text-muted py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue by Filing Plan -->
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h3 class="h6 fw-bold mb-3 border-bottom pb-2">Revenue by Filing Plan</h3>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Plan</th>
+                                    <th class="text-center">Total Tasks</th>
+                                    <th class="text-center">Completed</th>
+                                    <th class="text-end">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-by-plan-body">
+                                <tr><td colspan="4" class="text-center text-muted py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Tax Expert Performance -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-4">
+                    <h3 class="h6 fw-bold mb-3 border-bottom pb-2">Tax Expert Detailed Performance</h3>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tax Expert</th>
+                                    <th class="text-center">Assigned</th>
+                                    <th class="text-center">Completed</th>
+                                    <th class="text-center">Pending</th>
+                                    <th class="text-center">Stuck</th>
+                                    <th class="text-center">Completion Rate</th>
+                                    <th class="text-end">Revenue Generated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-by-expert-body">
+                                <tr><td colspan="7" class="text-center text-muted py-4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -112,6 +186,64 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('rep-completed').textContent = data.completedTasks;
             document.getElementById('rep-pending').textContent = data.pendingTasks;
             document.getElementById('rep-stuck').textContent = data.stuckTasks;
+
+            // Populate Revenue by Source (Client) table
+            const sourceBody = document.getElementById('rep-by-source-body');
+            if (data.revenueByClient && data.revenueByClient.length) {
+                sourceBody.innerHTML = data.revenueByClient.map(src => `
+                    <tr>
+                        <td class="fw-semibold">${src.client}</td>
+                        <td class="text-center">${src.total}</td>
+                        <td class="text-center text-success">${src.completed}</td>
+                        <td class="text-center text-warning">${src.pending}</td>
+                        <td class="text-center text-danger">${src.stuck}</td>
+                        <td class="text-end fw-bold">${formatCurrency(src.revenue)}</td>
+                    </tr>
+                `).join('');
+            } else {
+                sourceBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No data available</td></tr>';
+            }
+
+            // Populate Revenue by Filing Plan table
+            const planBody = document.getElementById('rep-by-plan-body');
+            if (data.revenueByPlan && data.revenueByPlan.length) {
+                planBody.innerHTML = data.revenueByPlan.map(pl => `
+                    <tr>
+                        <td class="fw-semibold">${pl.plan}</td>
+                        <td class="text-center">${pl.total}</td>
+                        <td class="text-center text-success">${pl.completed}</td>
+                        <td class="text-end fw-bold">${formatCurrency(pl.revenue)}</td>
+                    </tr>
+                `).join('');
+            } else {
+                planBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">No data available</td></tr>';
+            }
+
+            // Populate Detailed Tax Expert Performance table
+            const expertBody = document.getElementById('rep-by-expert-body');
+            if (data.employeePerformance && data.employeePerformance.length) {
+                expertBody.innerHTML = data.employeePerformance.map(emp => {
+                    const rate = emp.total > 0 ? Math.round((emp.completed / emp.total) * 100) : 0;
+                    return `
+                        <tr>
+                            <td class="fw-semibold">${emp.name}</td>
+                            <td class="text-center">${emp.total}</td>
+                            <td class="text-center text-success">${emp.completed}</td>
+                            <td class="text-center text-warning">${emp.pending}</td>
+                            <td class="text-center text-danger">${emp.stuck}</td>
+                            <td class="text-center">
+                                <div class="progress" style="height: 6px; min-width: 80px;">
+                                    <div class="progress-bar bg-primary" style="width: ${rate}%;"></div>
+                                </div>
+                                <small class="text-muted">${rate}%</small>
+                            </td>
+                            <td class="text-end fw-bold">${formatCurrency(emp.revenue)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                expertBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No data available</td></tr>';
+            }
 
             // Render Employee performance chart (Completed vs Total)
             const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';

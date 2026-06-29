@@ -40,7 +40,7 @@ include 'includes/header.php';
     <!-- Section 3: Tax Experts -->
     <div class="card border-0 shadow-sm p-4 mb-4">
         <h3 class="h6 fw-bold mb-3 d-flex align-items-center gap-2 border-bottom pb-2">
-            <i class="bi bi-people text-primary"></i> Task Experts (Employees)
+            <i class="bi bi-people text-primary"></i> Tax Experts (Employees)
         </h3>
         <p class="text-muted small">Active task experts inside the system to receive filing workloads.</p>
         <div class="d-flex gap-2 flex-wrap pt-2">

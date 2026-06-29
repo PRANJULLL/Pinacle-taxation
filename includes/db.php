@@ -1,18 +1,44 @@
 <?php
 // includes/db.php
-ob_start();
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 0); // Hide errors from end-users, log them instead
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../php_errors.log');
 
 // Set default timezone to local system timezone (IST) to sync with local database time
 date_default_timezone_set('Asia/Kolkata');
 
 if (php_sapi_name() !== 'cli') {
     if (session_status() === PHP_SESSION_NONE) {
+        // Use a session folder inside the project instead of the server's
+        // default/shared session path. On many shared hosting accounts the
+        // default path (e.g. /tmp) is not writable by your account, which
+        // causes session data to silently fail to save -- the user appears
+        // to log in successfully (login.php redirects), but the very next
+        // request can't find the session and bounces back to login.php.
+        $sessionPath = __DIR__ . '/../.sessions';
+        if (!is_dir($sessionPath)) {
+            @mkdir($sessionPath, 0700, true);
+        }
+        if (is_dir($sessionPath) && is_writable($sessionPath)) {
+            session_save_path($sessionPath);
+        } else {
+            // Couldn't create/use our own folder - log it so it shows up
+            // instead of failing silently.
+            error_log('Pinnacle: session folder ' . $sessionPath . ' is not writable, falling back to default session.save_path');
+        }
+
+        // Make sure the cookie is valid for the whole site regardless of
+        // which page/subfolder set it.
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
         session_start();
     }
     
@@ -46,7 +72,7 @@ try {
     seedDatabaseIfNeeded($pdo);
     applyStuckLogic($pdo);
 
-} catch (Throwable $e) {
+} catch (PDOException $e) {
     // Return a JSON error if it's an API request, or display a styled message
     if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
         header('Content-Type: application/json');
