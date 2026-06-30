@@ -95,7 +95,7 @@ function generateInvoicePDF($data) {
     $pdf->SetX(41);
     $pdf->SetFont('Arial', 'I', 8.5);
     $pdf->SetTextColor($mutedSlate[0], $mutedSlate[1], $mutedSlate[2]);
-    $pdf->Cell(120, 4.5, 'Your trust our slogan', 0, 0, 'L');
+    $pdf->Cell(120, 4.5, 'Your trust our commitment', 0, 0, 'L');
 
     // Right-Aligned Company Address/Contact Info
     $pdf->SetXY(110, 18);

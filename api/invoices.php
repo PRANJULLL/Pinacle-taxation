@@ -112,12 +112,61 @@ try {
                 exit;
             }
 
-            // If task already has invoice, return the existing invoice details
+            // If task already has an invoice, check if the amount or plan has changed.
+            // If so, regenerate the PDF and update the invoice record with the new values.
             if (!empty($task['invoiceId'])) {
                 $stmt = $pdo->prepare("SELECT * FROM invoices WHERE id = ?");
                 $stmt->execute([$task['invoiceId']]);
                 $existingInvoice = $stmt->fetch();
+
                 if ($existingInvoice) {
+                    $amountChanged = (float)$existingInvoice['amount'] !== (float)$task['amount'];
+                    $planChanged   = $existingInvoice['plan'] !== $task['plan'];
+                    $nameChanged   = $existingInvoice['customerName'] !== $task['customerName'];
+
+                    if ($amountChanged || $planChanged || $nameChanged) {
+                        // Delete old PDF from disk if it exists
+                        if (!empty($existingInvoice['pdfPath']) && file_exists($existingInvoice['pdfPath'])) {
+                            @unlink($existingInvoice['pdfPath']);
+                        }
+
+                        // Regenerate PDF with current task data
+                        $newPdfPath = generateInvoicePDF([
+                            'invoiceNumber' => $existingInvoice['invoiceNumber'],
+                            'customerName'  => $task['customerName'],
+                            'amount'        => $task['amount'],
+                            'plan'          => $task['plan'],
+                            'date'          => $existingInvoice['createdAt'],
+                            'orderId'       => $task['orderId'],
+                            'pan'           => $task['pan'],
+                            'phone'         => $task['phone'],
+                            'email'         => $task['email'],
+                            'client'        => $task['client'],
+                        ]);
+
+                        // Update invoice record with new amount, plan, customerName, and PDF path
+                        $updateInv = $pdo->prepare(
+                            "UPDATE invoices SET amount = ?, plan = ?, customerName = ?, pdfPath = ? WHERE id = ?"
+                        );
+                        $updateInv->execute([
+                            $task['amount'],
+                            $task['plan'],
+                            $task['customerName'],
+                            $newPdfPath,
+                            $existingInvoice['id'],
+                        ]);
+
+                        // Re-fetch updated invoice and return it
+                        $stmt = $pdo->prepare("SELECT * FROM invoices WHERE id = ?");
+                        $stmt->execute([$existingInvoice['id']]);
+                        $updatedInvoice = $stmt->fetch();
+                        $updatedInvoice['amount'] = (float)$updatedInvoice['amount'];
+
+                        echo json_encode($updatedInvoice);
+                        exit;
+                    }
+
+                    // Nothing changed — return the existing invoice as-is
                     $existingInvoice['amount'] = (float)$existingInvoice['amount'];
                     echo json_encode($existingInvoice);
                     exit;
