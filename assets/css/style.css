@@ -93,6 +93,15 @@ body {
     color: #bbf7d0;
 }
 
+.badge-status-transaction-completed {
+    background-color: rgba(37, 99, 235, 0.12);
+    color: #2563eb;
+}
+[data-bs-theme="dark"] .badge-status-transaction-completed {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+}
+
 .badge-status-stuck {
     background-color: rgba(220, 38, 38, 0.12);
     color: #b91c1c;
@@ -108,6 +117,13 @@ tr.task-row-Completed td {
 }
 tr.task-row-Completed:hover td {
     background-color: rgba(22, 163, 74, 0.14) !important;
+}
+
+tr.task-row-Transaction-Completed td {
+    background-color: rgba(37, 99, 235, 0.08) !important;
+}
+tr.task-row-Transaction-Completed:hover td {
+    background-color: rgba(37, 99, 235, 0.14) !important;
 }
 tr.task-row-Pending td {
     background-color: rgba(202, 138, 4, 0.08) !important;
@@ -127,6 +143,13 @@ tr.task-row-Stuck:hover td {
 }
 [data-bs-theme="dark"] tr.task-row-Completed:hover td {
     background-color: rgba(34, 197, 94, 0.18) !important;
+}
+
+[data-bs-theme="dark"] tr.task-row-Transaction-Completed td {
+    background-color: rgba(59, 130, 246, 0.12) !important;
+}
+[data-bs-theme="dark"] tr.task-row-Transaction-Completed:hover td {
+    background-color: rgba(59, 130, 246, 0.18) !important;
 }
 [data-bs-theme="dark"] tr.task-row-Pending td {
     background-color: rgba(234, 179, 8, 0.12) !important;

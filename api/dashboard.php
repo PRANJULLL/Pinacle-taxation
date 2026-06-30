@@ -31,7 +31,7 @@ try {
         $pending = $stmt->fetchColumn();
 
         // Completed
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tasks WHERE status = 'Completed'" . $clientFilter);
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tasks WHERE status IN ('Completed', 'Transaction Completed')" . $clientFilter);
         $stmt->execute($params);
         $completed = $stmt->fetchColumn();
 
@@ -49,7 +49,7 @@ try {
         $todayTasks = $stmt->fetchColumn();
 
         // Today completed
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tasks WHERE status = 'Completed' AND completedAt >= :start AND completedAt <= :end" . $clientFilter);
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tasks WHERE status IN ('Completed', 'Transaction Completed') AND completedAt >= :start AND completedAt <= :end" . $clientFilter);
         $stmt->execute($todayParams);
         $todayCompleted = $stmt->fetchColumn();
 
@@ -74,7 +74,7 @@ try {
         $tasksByClient = $stmt->fetchAll();
 
         // 3. Revenue by client (only completed tasks)
-        $stmt = $pdo->prepare("SELECT client as name, SUM(amount) as value FROM tasks WHERE status = 'Completed'" . $clientFilter . " GROUP BY client");
+        $stmt = $pdo->prepare("SELECT client as name, SUM(amount) as value FROM tasks WHERE status IN ('Completed', 'Transaction Completed')" . $clientFilter . " GROUP BY client");
         $stmt->execute($params);
         $revenueByClient = $stmt->fetchAll();
         foreach ($revenueByClient as &$r) {
@@ -97,7 +97,7 @@ try {
                     DATE_FORMAT(completedAt, '%Y-%m') as name, 
                     SUM(amount) as value 
                 FROM tasks 
-                WHERE status = 'Completed' AND completedAt >= :sixMonthsAgo" . $clientFilter . " 
+                WHERE status IN ('Completed', 'Transaction Completed') AND completedAt >= :sixMonthsAgo" . $clientFilter . " 
                 GROUP BY DATE_FORMAT(completedAt, '%Y-%m') 
                 ORDER BY name ASC";
                 

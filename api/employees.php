@@ -34,10 +34,10 @@ try {
 
         foreach ($tasks as $t) {
             if ($t['status'] === 'Pending') $pending++;
-            elseif ($t['status'] === 'Completed') $completed++;
+            elseif ($t['status'] === 'Completed' || $t['status'] === 'Transaction Completed') $completed++;
             elseif ($t['status'] === 'Stuck') $stuck++;
 
-            if ($t['status'] === 'Completed' && !empty($t['completedAt'])) {
+            if (($t['status'] === 'Completed' || $t['status'] === 'Transaction Completed') && !empty($t['completedAt'])) {
                 $created = strtotime($t['createdAt']);
                 $completedTime = strtotime($t['completedAt']);
                 if ($completedTime > $created) {
@@ -91,10 +91,10 @@ try {
 
             foreach ($tasks as $t) {
                 if ($t['status'] === 'Pending') $pending++;
-                elseif ($t['status'] === 'Completed') $completed++;
+                elseif ($t['status'] === 'Completed' || $t['status'] === 'Transaction Completed') $completed++;
                 elseif ($t['status'] === 'Stuck') $stuck++;
 
-                if ($t['status'] === 'Completed' && !empty($t['completedAt'])) {
+                if (($t['status'] === 'Completed' || $t['status'] === 'Transaction Completed') && !empty($t['completedAt'])) {
                     $created = strtotime($t['createdAt']);
                     $completedTime = strtotime($t['completedAt']);
                     if ($completedTime > $created) {

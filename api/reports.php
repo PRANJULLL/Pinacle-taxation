@@ -13,11 +13,11 @@ try {
         // -------------------------------------------------------------
         
         // Revenue (sum of completed tasks amount)
-        $stmt = $pdo->query("SELECT SUM(amount) FROM tasks WHERE status = 'Completed'");
+        $stmt = $pdo->query("SELECT SUM(amount) FROM tasks WHERE status IN ('Completed', 'Transaction Completed')");
         $revenue = (float)$stmt->fetchColumn();
 
         // Count statuses
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status = 'Completed'");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status IN ('Completed', 'Transaction Completed')");
         $completedTasks = (int)$stmt->fetchColumn();
 
         $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status = 'Pending'");
@@ -30,10 +30,10 @@ try {
         $sql = "SELECT 
                     taxExpert as name, 
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
-                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN amount ELSE 0 END) as revenue
                 FROM tasks 
                 GROUP BY taxExpert
                 ORDER BY revenue DESC";
@@ -51,10 +51,10 @@ try {
         $sql = "SELECT 
                     client,
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
-                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN amount ELSE 0 END) as revenue
                 FROM tasks
                 GROUP BY client
                 ORDER BY revenue DESC";
@@ -72,8 +72,8 @@ try {
         $sql = "SELECT 
                     plan,
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
-                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN amount ELSE 0 END) as revenue
                 FROM tasks
                 WHERE plan IS NOT NULL AND plan != ''
                 GROUP BY plan
@@ -242,10 +242,10 @@ try {
         // -------------------------------------------------------------
         
         // Fetch stats
-        $stmt = $pdo->query("SELECT SUM(amount) FROM tasks WHERE status = 'Completed'");
+        $stmt = $pdo->query("SELECT SUM(amount) FROM tasks WHERE status IN ('Completed', 'Transaction Completed')");
         $revenue = (float)$stmt->fetchColumn();
 
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status = 'Completed'");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status IN ('Completed', 'Transaction Completed')");
         $completedTasks = (int)$stmt->fetchColumn();
 
         $stmt = $pdo->query("SELECT COUNT(*) FROM tasks WHERE status = 'Pending'");
@@ -257,10 +257,10 @@ try {
         $sql = "SELECT 
                     taxExpert as name, 
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
-                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN amount ELSE 0 END) as revenue
                 FROM tasks 
                 GROUP BY taxExpert
                 ORDER BY revenue DESC";
@@ -270,10 +270,10 @@ try {
         $sql = "SELECT 
                     client,
                     COUNT(*) as total,
-                    SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status = 'Stuck' THEN 1 ELSE 0 END) as stuck,
-                    SUM(CASE WHEN status = 'Completed' THEN amount ELSE 0 END) as revenue
+                    SUM(CASE WHEN status IN ('Completed', 'Transaction Completed') THEN amount ELSE 0 END) as revenue
                 FROM tasks
                 GROUP BY client
                 ORDER BY revenue DESC";

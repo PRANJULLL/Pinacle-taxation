@@ -206,6 +206,7 @@ include 'includes/header.php';
                 </div>
                 <div>
                     <button type="button" class="btn btn-success btn-sm px-3 d-none" id="btnViewComplete">Mark Completed</button>
+                    <button type="button" class="btn btn-primary btn-sm px-3 d-none" id="btnViewTransactionComplete">Transaction Completed</button>
                     <button type="button" class="btn btn-warning btn-sm px-3 d-none" id="btnViewRevert">Revert to Pending</button>
                     <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -524,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedStatusFilter === 'Active') {
             filteredTasks = filteredTasks.filter(t => t.status === 'Pending' || t.status === 'Stuck');
         } else if (selectedStatusFilter === 'Completed') {
-            filteredTasks = filteredTasks.filter(t => t.status === 'Completed');
+            filteredTasks = filteredTasks.filter(t => t.status === 'Completed' || t.status === 'Transaction Completed');
         }
 
         if (filteredTasks.length === 0) {
@@ -563,8 +564,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let html = '';
         filteredTasks.forEach((task, index) => {
-            const statusClass = `badge-status-${task.status.toLowerCase()}`;
-            const rowClass = `task-row-${task.status}`;
+            const statusClass = `badge-status-${task.status.toLowerCase().replace(/\s+/g, '-')}`;
+            const rowClass = `task-row-${task.status.replace(/\s+/g, '-')}`;
 
             html += `<tr class="${rowClass} transition-all">`;
             
@@ -598,26 +599,40 @@ document.addEventListener('DOMContentLoaded', () => {
             // Actions dropdown menu
             html += `<td class="text-nowrap text-end">
                 <div class="d-flex align-items-center justify-content-end gap-1">
-                    ${task.status !== 'Completed' ? `
+                    ${(task.status === 'Pending' || task.status === 'Stuck') ? `
                         <button class="btn btn-outline-success btn-xs py-1 px-2 border-0" onclick="window.completeTaskById(${task.id})" title="Complete Task">
                             <i class="bi bi-check-circle-fill"></i>
                         </button>
-                    ` : `
+                    ` : ''}
+                    ${task.status === 'Completed' ? `
+                        <button class="btn btn-outline-primary btn-xs py-1 px-2 border-0" onclick="window.transactionCompleteTaskById(${task.id})" title="Mark Transaction Completed">
+                            <i class="bi bi-check-all"></i>
+                        </button>
                         <button class="btn btn-outline-warning btn-xs py-1 px-2 border-0" onclick="window.revertTaskById(${task.id})" title="Revert to Pending">
                             <i class="bi bi-arrow-counterclockwise"></i>
                         </button>
-                    `}
+                    ` : ''}
+                    ${task.status === 'Transaction Completed' ? `
+                        <button class="btn btn-outline-warning btn-xs py-1 px-2 border-0" onclick="window.revertToCompletedTaskById(${task.id})" title="Revert to Completed (Payment Pending)">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    ` : ''}
                     <div class="dropdown">
                         <button class="btn btn-light btn-xs py-1 px-2 border-0" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border border-light">
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.viewTaskById(${task.id})"><i class="bi bi-eye me-2 text-primary"></i> View Details</a></li>
-                            ${task.status !== 'Completed' ? `
+                            ${(task.status === 'Pending' || task.status === 'Stuck') ? `
                                 <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.completeTaskById(${task.id})"><i class="bi bi-check2-circle me-2 text-success"></i> Complete Task</a></li>
-                            ` : `
+                            ` : ''}
+                            ${task.status === 'Completed' ? `
+                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.transactionCompleteTaskById(${task.id})"><i class="bi bi-check-all me-2 text-primary"></i> Transaction Completed</a></li>
                                 <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.revertTaskById(${task.id})"><i class="bi bi-arrow-counterclockwise me-2 text-warning"></i> Revert to Pending</a></li>
-                            `}
+                            ` : ''}
+                            ${task.status === 'Transaction Completed' ? `
+                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.revertToCompletedTaskById(${task.id})"><i class="bi bi-arrow-counterclockwise me-2 text-warning"></i> Revert to Completed</a></li>
+                            ` : ''}
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.editTaskById(${task.id})"><i class="bi bi-pencil me-2 text-warning"></i> Edit Details</a></li>
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="window.generateInvoice(${task.id})"><i class="bi bi-file-earmark-pdf me-2 text-info"></i> Generate Invoice</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -650,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${task.client === 'Clear Tax' ? `<div class="col-12 col-md-6"><small class="text-muted d-block">Filing Plan</small><strong class="fs-6">${task.plan}</strong></div>` : ''}
             <div class="col-12 col-md-6"><small class="text-muted d-block">Amount Charged</small><strong class="fs-6">${formatCurrency(task.amount)}</strong></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Tax Expert Assigned</small><span class="badge bg-secondary-subtle text-secondary fs-7 mt-1">${task.taxExpert}</span></div>
-            <div class="col-12 col-md-6"><small class="text-muted d-block">Current Status</small><span class="badge-status badge-status-${task.status.toLowerCase()} mt-1">${task.status}</span></div>
+            <div class="col-12 col-md-6"><small class="text-muted d-block">Current Status</small><span class="badge-status badge-status-${task.status.toLowerCase().replace(/\s+/g, '-')} mt-1">${task.status}</span></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Assigned Date</small><strong class="fs-7 text-muted">${formatDate(task.createdAt)}</strong></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Completed Date</small><strong class="fs-7 text-muted">${formatDate(task.completedAt)}</strong></div>
             <div class="col-12 col-md-6"><small class="text-muted d-block">Reference Details</small><span class="font-monospace small text-secondary">${task.reference || '—'}</span></div>
@@ -667,14 +682,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         content.innerHTML = html;
 
+        // Toggle Complete / Revert buttons inside View Dialog
         const compBtn = document.getElementById('btnViewComplete');
+        const transBtn = document.getElementById('btnViewTransactionComplete');
         const revertBtn = document.getElementById('btnViewRevert');
-        if (task.status !== 'Completed') {
+        
+        compBtn.classList.add('d-none');
+        transBtn.classList.add('d-none');
+        revertBtn.classList.add('d-none');
+        
+        if (task.status === 'Pending' || task.status === 'Stuck') {
             compBtn.classList.remove('d-none');
-            revertBtn.classList.add('d-none');
-        } else {
-            compBtn.classList.add('d-none');
+        } else if (task.status === 'Completed') {
+            transBtn.classList.remove('d-none');
             revertBtn.classList.remove('d-none');
+            revertBtn.textContent = 'Revert to Pending';
+        } else if (task.status === 'Transaction Completed') {
+            revertBtn.classList.remove('d-none');
+            revertBtn.textContent = 'Revert to Completed';
         }
 
         taskViewModal.show();
@@ -740,11 +765,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.getElementById('btnViewTransactionComplete').addEventListener('click', () => {
+        if (activeViewedTask) {
+            taskViewModal.hide();
+            setTimeout(() => {
+                window.transactionCompleteTaskById(activeViewedTask.id);
+            }, 300);
+        }
+    });
+
     document.getElementById('btnViewRevert').addEventListener('click', () => {
         if (activeViewedTask) {
             taskViewModal.hide();
             setTimeout(() => {
-                window.revertTaskById(activeViewedTask.id);
+                if (activeViewedTask.status === 'Transaction Completed') {
+                    window.revertToCompletedTaskById(activeViewedTask.id);
+                } else {
+                    window.revertTaskById(activeViewedTask.id);
+                }
             }, 300);
         }
     });
@@ -837,6 +875,79 @@ document.addEventListener('DOMContentLoaded', () => {
                     position: 'top-end',
                     icon: 'success',
                     title: 'Task reverted to Pending',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                fetchExpertsMetrics();
+                if (selectedExpert) {
+                    loadExpertTasks(selectedExpert);
+                }
+            } else {
+                const err = await res.json();
+                throw new Error(err.message || 'Failed to revert task status');
+            }
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    };
+
+    window.transactionCompleteTaskById = async (id) => {
+        try {
+            const res = await fetch(`api/tasks.php?id=${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'Transaction Completed' })
+            });
+
+            if (res.ok) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Transaction marked Completed',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                fetchExpertsMetrics();
+                if (selectedExpert) {
+                    loadExpertTasks(selectedExpert);
+                }
+            } else {
+                const err = await res.json();
+                throw new Error(err.message || 'Failed to update task status');
+            }
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    };
+
+    window.revertToCompletedTaskById = async (id) => {
+        const result = await Swal.fire({
+            title: 'Revert Transaction?',
+            text: 'This task will move back to Completed status (payment pending).',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Revert Transaction',
+            cancelButtonText: 'Cancel'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const res = await fetch(`api/tasks.php?id=${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'Completed' })
+            });
+
+            if (res.ok) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Transaction status reverted',
                     showConfirmButton: false,
                     timer: 3000
                 });

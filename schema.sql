@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
     `plan` VARCHAR(100) NOT NULL,
     `amount` DECIMAL(10, 2) NOT NULL,
     `taxExpert` VARCHAR(100) NOT NULL,
-    `status` ENUM('Pending', 'Completed', 'Stuck') NOT NULL DEFAULT 'Pending',
+    `status` ENUM('Pending', 'Completed', 'Stuck', 'Transaction Completed') NOT NULL DEFAULT 'Pending',
     `remarks` TEXT DEFAULT NULL,
     `reference` VARCHAR(255) DEFAULT '',
     `completedAt` DATETIME DEFAULT NULL,

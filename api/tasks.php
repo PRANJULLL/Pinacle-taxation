@@ -319,10 +319,13 @@ try {
                 
                 // Extra logic for status dates
                 if ($field === 'status') {
-                    if ($val === 'Completed' && $existingTask['status'] !== 'Completed') {
+                    $isNewValCompleted = ($val === 'Completed' || $val === 'Transaction Completed');
+                    $isOldValCompleted = ($existingTask['status'] === 'Completed' || $existingTask['status'] === 'Transaction Completed');
+                    
+                    if ($isNewValCompleted && !$isOldValCompleted) {
                         $updateSQL[] = "completedAt = :completedAt";
                         $updateParams['completedAt'] = date('Y-m-d H:i:s');
-                    } elseif (($val === 'Pending' || $val === 'Stuck') && $existingTask['status'] === 'Completed') {
+                    } elseif (!$isNewValCompleted && $isOldValCompleted) {
                         $updateSQL[] = "completedAt = :completedAt";
                         $updateParams['completedAt'] = null;
                     }
